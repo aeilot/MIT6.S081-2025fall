@@ -34,7 +34,7 @@ void process_file(char* path) {
 			}
 		}
 	}
-	if (num_reads) {
+	if (flag && num_reads) {
 		if (num % 6 == 0 || num % 5 == 0) {
 			fprintf(1, "%d\n", num);
 		}
