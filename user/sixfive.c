@@ -41,6 +41,7 @@ void process_file(char* path) {
 			fprintf(1, "%d\n", num);
 		}
 	}
+	close(fd);
 }
 
 int main(int argc, char* argv[]) {
