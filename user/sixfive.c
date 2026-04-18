@@ -31,6 +31,8 @@ void process_file(char* path) {
 				num = num * 10 + buf - '0';
 			} else {
 				flag = 0;
+				num_reads = 0;
+				num = 0;
 			}
 		}
 	}
