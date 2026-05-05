@@ -93,6 +93,7 @@ struct proc {
   int pid;                     // Process ID
 
   int mask;                    // Interpose Mask
+  char allowed_path[MAXPATH]; // Allowed Pathname
 
   // wait_lock must be held when using this:
   struct proc *parent;         // Parent process

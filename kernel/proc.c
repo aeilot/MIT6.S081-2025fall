@@ -265,6 +265,7 @@ int kfork(void) {
 	np->cwd = idup(p->cwd);
 	np->mask = p->mask;
 
+	safestrcpy(np->allowed_path, p->allowed_path, sizeof(p->allowed_path));
 	safestrcpy(np->name, p->name, sizeof(p->name));
 
 	pid = np->pid;

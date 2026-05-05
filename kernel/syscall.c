@@ -125,13 +125,23 @@ void syscall(void) {
 	int mask = p->mask;
 
 	num = p->trapframe->a7;
-	// num = *(int*)0;
+
 	if (num > 0 && num < NELEM(syscalls) && syscalls[num]) {
 		// Use num to lookup the system call function for num, call it,
 		// and store its return value in p->trapframe->a0
 		if ((mask & (1 << num)) == 0)
 			p->trapframe->a0 = syscalls[num]();
-		else {
+		else if (num == SYS_open || num == SYS_exec) {
+			char path[MAXPATH];
+
+			if (argstr(0, path, MAXPATH) < 0) {
+				p->trapframe->a0 = -1;
+			} else if (strncmp(path, p->allowed_path, MAXPATH) == 0) {
+				p->trapframe->a0 = syscalls[num]();
+			} else {
+				p->trapframe->a0 = -1;
+			}
+		} else {
 			p->trapframe->a0 = -1;
 		}
 	} else {

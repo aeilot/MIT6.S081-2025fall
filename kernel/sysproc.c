@@ -104,11 +104,7 @@ sys_interpose(void) {
 	argint(0, &mask);
 	myproc()->mask = mask;
 
-	uint64 uaddr;
-	char path[128];
-	argaddr(1, &uaddr);
-	if (copyinstr(myproc()->pagetable, path, uaddr, sizeof(path)) < 0)
-		return -1;
+	argstr(1, myproc()->allowed_path, MAXPATH);
 
 	return myproc()->pid;
 }
