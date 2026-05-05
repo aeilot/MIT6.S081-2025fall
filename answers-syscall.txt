@@ -1,0 +1,9 @@
+1. Accroding to the backtrace output, `usertrap()` called syscall.
+2. a7 = 15, SYS_open.
+3. Previously, the CPU was in User Mode.
+4.1 80001d08:	00002683          	lw	a3,0(zero) # 0 <_entry-0x80000000>
+4.2 a3 corresponds to the variable num
+5.1 num=0 is not defined in the kernel address space.
+5.2 scause: 0xd = 13 Load Page Fault
+6.1 init
+6.2 pid = 1
