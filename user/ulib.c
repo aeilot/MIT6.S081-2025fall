@@ -140,3 +140,6 @@ int ugetpid(void) {
 	return u->pid;
 }
 #endif
+
+// Which other xv6 system call(s) could be made faster using this shared page? Explain how.
+// E.g. Parent Process PID. Store ppid in usyscall
