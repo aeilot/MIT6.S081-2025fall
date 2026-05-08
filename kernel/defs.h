@@ -67,6 +67,9 @@ void*           kalloc(void);
 void            kfree(void *);
 void            kinit(void);
 
+void superfree(void* pa);
+void* superalloc(void);
+
 // log.c
 void            initlog(int, struct superblock*);
 void            log_write(struct buf*);
