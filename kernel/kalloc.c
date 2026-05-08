@@ -9,7 +9,7 @@
 #include "riscv.h"
 #include "defs.h"
 
-#define SUPERPMEM (2 * SUPERPGSIZE)
+#define SUPERPMEM (16 * SUPERPGSIZE)
 
 void freerange(void* pa_start, void* pa_end);
 void superfreerange(void* pa_start, void* pa_end);
