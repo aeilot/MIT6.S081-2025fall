@@ -1,22 +1,29 @@
 # MIT 6.S081 / 6.1810 xv6 Labs
 
-Branch overview for my MIT 6.S081 / 6.1810 Operating System Engineering xv6 lab work.
+Progress tracker for my MIT 6.S081 / 6.1810 Operating System Engineering xv6 lab work.
 
-Current progress: completed through `traps`; next planned lab is `cow`.
+`main` is the tracking branch. Completed lab work lives on the corresponding lab branch.
 
 ## Branch Overview
 
-| Branch | Status | Lab Area | Work Summary |
-| --- | --- | --- | --- |
-| [`util`](../../tree/util) | Done | Unix utilities | Added xv6 user programs including `sleep`, `sixfive`, `memdump`, and `find`; extended `find` with `-exec` behavior using `fork`, `exec`, and `wait`. |
-| [`syscall`](../../tree/syscall) | Done | System calls | Added syscall plumbing across user stubs, syscall numbers, dispatch, and kernel handlers; explored syscall tracing/interposition and process-level kernel state. |
-| [`pgtbl`](../../tree/pgtbl) | Done | Page tables | Implemented `USYSCALL`, `vmprint`, and superpage support across page-table and allocator code. |
-| [`traps`](../../tree/traps) | Done | Trap handling | Implemented backtrace support and user-level alarm handling with `sigalarm` / `sigreturn` across trapframe and timer-interrupt paths. |
-| `cow` | Planned | Copy-on-write fork | Replace eager `fork` memory copying with COW mappings, write-fault handling, and physical-page reference counting. |
-| `net` | Planned | Networking | Complete E1000 receive-path support and UDP delivery through `ip_rx`, `bind`, and `recv`. |
-| `lock` | Planned | Kernel concurrency | Reduce lock contention in the memory allocator and block cache; add/readapt locking strategies for multicore execution. |
-| `fs` | Planned | File system | Add large-file support and symbolic links in the xv6 file system. |
-| `mmap` | Planned | Virtual memory / files | Add `mmap` and `munmap` with VMA tracking, lazy page faults, and file-backed memory mappings. |
+| Branch | Status | Updated | Lab Area | Work Summary |
+| --- | --- | --- | --- | --- |
+| [`util`](../../tree/util) | Done | 2026-04-20 | Unix utilities | Added xv6 user programs including `sleep`, `sixfive`, `memdump`, and `find`; extended `find` with `-exec` behavior using `fork`, `exec`, and `wait`. |
+| [`syscall`](../../tree/syscall) | Done | 2026-05-06 | System calls | Added syscall plumbing across user stubs, syscall numbers, dispatch, and kernel handlers; explored syscall tracing/interposition and process-level kernel state. |
+| [`pgtbl`](../../tree/pgtbl) | Done | 2026-05-08 | Page tables | Implemented `USYSCALL`, `vmprint`, and superpage support across page-table and allocator code. |
+| [`traps`](../../tree/traps) | Done | 2026-05-13 | Trap handling | Implemented backtrace support and user-level alarm handling with `sigalarm` / `sigreturn` across trapframe and timer-interrupt paths. |
+| `cow` | Next | Not started | Copy-on-write fork | Replace eager `fork` memory copying with COW mappings, write-fault handling, and physical-page reference counting. |
+| `net` | Planned | Not started | Networking | Complete E1000 receive-path support and UDP delivery through `ip_rx`, `bind`, and `recv`. |
+| `lock` | Planned | Not started | Kernel concurrency | Reduce lock contention in the memory allocator and block cache; add/readapt locking strategies for multicore execution. |
+| `fs` | Planned | Not started | File system | Add large-file support and symbolic links in the xv6 file system. |
+| `mmap` | Planned | Not started | Virtual memory / files | Add `mmap` and `munmap` with VMA tracking, lazy page faults, and file-backed memory mappings. |
+
+## Progress Log
+
+- 2026-05-13: Finished `traps`, including backtrace and alarm handling.
+- 2026-05-08: Finished `pgtbl`, including `USYSCALL`, `vmprint`, and superpages.
+- 2026-05-06: Finished `syscall`, including syscall plumbing and tracing-related work.
+- 2026-04-20: Finished `util`, including user utilities and `find -exec`.
 
 ## Technical Themes
 
@@ -31,11 +38,11 @@ Current progress: completed through `traps`; next planned lab is `cow`.
 ```sh
 git clone https://github.com/aeilot/MIT6.S081-2025fall.git
 cd MIT6.S081-2025fall
-git checkout pgtbl
+git checkout traps
 make qemu
 ```
 
-Each lab branch contains the complete xv6 source tree for that assignment.
+Each completed lab branch contains the complete xv6 source tree for that assignment.
 
 ## References
 
