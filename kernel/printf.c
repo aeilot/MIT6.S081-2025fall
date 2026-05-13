@@ -144,9 +144,9 @@ void printfinit(void) {
 void backtrace() {
 	printf("backtrace:\n");
 	uint64 fp = r_fp();
-	uint64 top = PGROUNDUP(fp);
+	uint64 top = PGROUNDUP(fp);  // All stack frames are in the same page
 	while (fp < top) {
-		printf("%p\n", (void*)*(uint64*)(fp - 8));
+		printf("%p\n", (void*)*(uint64*)(fp - 8));  // 64 bit pointers are 8 bytes
 		fp = *(uint64*)(fp - 16);
 	}
 }
