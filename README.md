@@ -2,6 +2,8 @@
 
 Branch overview for my MIT 6.S081 / 6.1810 Operating System Engineering xv6 lab work.
 
+Current progress: completed through `traps`; next planned lab is `cow`.
+
 ## Branch Overview
 
 | Branch | Status | Lab Area | Work Summary |
@@ -9,7 +11,7 @@ Branch overview for my MIT 6.S081 / 6.1810 Operating System Engineering xv6 lab 
 | [`util`](../../tree/util) | Done | Unix utilities | Added xv6 user programs including `sleep`, `sixfive`, `memdump`, and `find`; extended `find` with `-exec` behavior using `fork`, `exec`, and `wait`. |
 | [`syscall`](../../tree/syscall) | Done | System calls | Added syscall plumbing across user stubs, syscall numbers, dispatch, and kernel handlers; explored syscall tracing/interposition and process-level kernel state. |
 | [`pgtbl`](../../tree/pgtbl) | Done | Page tables | Implemented `USYSCALL`, `vmprint`, and superpage support across page-table and allocator code. |
-| `traps` | Planned | Trap handling | Add user-level alarm handling with `sigalarm` / `sigreturn` and reason through RISC-V trap entry/return paths. |
+| [`traps`](../../tree/traps) | Done | Trap handling | Implemented backtrace support and user-level alarm handling with `sigalarm` / `sigreturn` across trapframe and timer-interrupt paths. |
 | `cow` | Planned | Copy-on-write fork | Replace eager `fork` memory copying with COW mappings, write-fault handling, and physical-page reference counting. |
 | `net` | Planned | Networking | Complete E1000 receive-path support and UDP delivery through `ip_rx`, `bind`, and `recv`. |
 | `lock` | Planned | Kernel concurrency | Reduce lock contention in the memory allocator and block cache; add/readapt locking strategies for multicore execution. |
