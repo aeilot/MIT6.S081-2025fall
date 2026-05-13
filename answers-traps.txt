@@ -1,0 +1,7 @@
+1. ax registers. for main's call to printf it's a2 that holds 13.
+2. f and g have been inlined as 2c
+3. printf is located at 73e
+4. 3c
+5. (char *) &i converts i into a char pointer whose content is "0x00646c72", which translates to "rld". We don't need to change 57616, it's still e110. But we need to reverse i for big endian.
+    So we get He110 World
+6. Something unknown. (Stored in register a2, an unpredictable garbage value)
