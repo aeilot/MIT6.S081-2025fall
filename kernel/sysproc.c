@@ -106,15 +106,21 @@ uint64 sys_sigalarm(void) {
 	argint(0, &m_ticks);
 	argaddr(1, &hand);
 
-	void* handler = (void*)hand;
-
 	struct proc* p = myproc();
 	p->interval = m_ticks;
-	p->handler = handler;
+	p->handler = hand;
 
 	return 0;
 }
 
 uint64 sys_sigreturn(void) {
-	return 0;
+	struct proc* p = myproc();
+
+	memmove(p->trapframe,
+	        &p->at_trapframe,
+	        sizeof(struct trapframe));
+
+	p->alarming = 0;
+
+	return p->trapframe->a0;
 }

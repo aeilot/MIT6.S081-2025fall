@@ -113,5 +113,7 @@ struct proc {
 	// Alarm
 	uint64 lasttick;
 	uint64 interval;
-	void* handler;
+	uint64 handler;
+  int alarming;
+	struct trapframe at_trapframe;
 };

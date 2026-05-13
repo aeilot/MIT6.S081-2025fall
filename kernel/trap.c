@@ -77,9 +77,14 @@ usertrap(void) {
 
 	// give up the CPU if this is a timer interrupt.
 	if (which_dev == 2) {
-		if (p->interval != 0 && ticks - p->lasttick >= p->interval) {
-			p->lasttick = ticks;
+    p->lasttick++;
+		if (p->interval != 0 && p->lasttick >= p->interval && !p->alarming) {
+			p->lasttick = 0;
+			memmove(&p->at_trapframe,
+			        p->trapframe,
+			        sizeof(struct trapframe));
 			p->trapframe->epc = (uint64)p->handler;
+      p->alarming = 1;
 			// User Space and Kernel Space have different page tables, different address spaces
 			// Set RA to handler, so when the function returns, it returns to the handler address
 		}

@@ -131,6 +131,7 @@ found:
 
 	p->lasttick = 0;
 	p->handler = 0;
+	p->alarming = 0;
 	p->interval = 0;
 
 	// Set up new context to start executing at forkret,
