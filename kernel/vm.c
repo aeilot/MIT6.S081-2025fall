@@ -283,22 +283,30 @@ int uvmcopy(pagetable_t old, pagetable_t new, uint64 sz) {
 			continue;  // page table entry hasn't been allocated
 		if ((*pte & PTE_V) == 0)
 			continue;  // physical page hasn't been allocated
+
+		// The order matters: mappages() can fail, and a failed fork should not leave
+		// the parent's writable PTE downgraded to COW.
 		pa = PTE2PA(*pte);
-		// if((mem = kalloc()) == 0)
-		//   goto err;
+		flags = PTE_FLAGS(*pte);
+
+		if (flags & PTE_W) {
+			flags = (flags | PTE_COW) & ~PTE_W;
+		}
+
+		if (mappages(new, i, PGSIZE, pa, flags) != 0)
+			goto err;
+
 		if (*pte & PTE_W) {
 			*pte = (*pte | PTE_COW) & ~PTE_W;
 		}
-		flags = PTE_FLAGS(*pte);
-		if (mappages(new, i, PGSIZE, pa, flags) != 0) {
-			goto err;
-		}
+
 		kref_inc(pa);
 	}
 	return 0;
 
 err:
-	uvmunmap(new, 0, i / PGSIZE, 0);
+	// unmap child mappings and drop the refcounts added for earlier successful mappings
+	uvmunmap(new, 0, i / PGSIZE, 1);
 	return -1;
 }
 
@@ -313,12 +321,53 @@ void uvmclear(pagetable_t pagetable, uint64 va) {
 	*pte &= ~PTE_U;
 }
 
+static uint64 cowbreak(pagetable_t pagetable, uint64 va) {
+	pte_t* pte;
+	uint64 pa, mem;
+	uint flags;
+
+	va = PGROUNDDOWN(va);
+	pte = walk(pagetable, va, 0);
+	if (pte == 0)
+		return 0;
+	if ((*pte & PTE_V) == 0)
+		return 0;
+	if ((*pte & PTE_COW) == 0)
+		return 0;
+
+	pa = PTE2PA(*pte);
+
+	// If this process is the only owner, make the page writable in place.
+	if (kref_count(pa) == 1) {
+		*pte = (*pte | PTE_W) & ~PTE_COW;
+		return pa;
+	}
+
+	mem = (uint64)kalloc();
+	if (mem == 0)
+		return 0;
+
+	flags = PTE_FLAGS(*pte);
+	memmove((void*)mem, (void*)pa, PGSIZE);
+
+	uvmunmap(pagetable, va, 1, 0);
+
+	flags = (flags | PTE_W) & ~PTE_COW;
+	if (mappages(pagetable, va, PGSIZE, mem, flags) != 0) {
+		kfree((void*)mem);
+		return 0;
+	}
+
+	kfree((void*)pa);
+
+	return mem;
+}
+
 // Copy from kernel to user.
 // Copy len bytes from src to virtual address dstva in a given page table.
 // Return 0 on success, -1 on error.
 int copyout(pagetable_t pagetable, uint64 dstva, char* src, uint64 len) {
 	uint64 n, va0, pa0;
-	uint flags;
 	pte_t* pte;
 
 	while (len > 0) {
@@ -338,27 +387,9 @@ int copyout(pagetable_t pagetable, uint64 dstva, char* src, uint64 len) {
 			return -1;
 		// forbid copyout over read-only user text pages. Handle COW.
 		if (*pte & PTE_COW) {
-			uint64 mem = (uint64)kalloc();
-			flags = PTE_FLAGS(*pte);
-
-			if (mem == 0)
+			pa0 = cowbreak(pagetable, va0);
+			if (pa0 == 0)
 				return -1;
-
-			memmove((void*)mem, (void*)pa0, PGSIZE);
-
-			uvmunmap(pagetable, va0, 1, 0);
-
-			flags = (flags | PTE_W) & ~PTE_COW;
-
-			if (mappages(pagetable, va0, PGSIZE, mem, flags) != 0) {
-				kfree((void*)mem);
-				return -1;
-			}
-
-			kfree((void*)pa0);
-
-			pa0 = mem;
-
 		} else if ((*pte & PTE_W) == 0)
 			return -1;
 
@@ -384,7 +415,7 @@ int copyin(pagetable_t pagetable, char* dst, uint64 srcva, uint64 len) {
 		va0 = PGROUNDDOWN(srcva);
 		pa0 = walkaddr(pagetable, va0);
 		if (pa0 == 0) {
-			if ((pa0 = vmfault(pagetable, va0, 0)) == 0) {
+			if ((pa0 = vmfault(pagetable, va0, 1)) == 0) {
 				return -1;
 			}
 		}
@@ -447,9 +478,8 @@ int copyinstr(pagetable_t pagetable, char* dst, uint64 srcva, uint64 max) {
 // out of physical memory, and physical address if successful.
 uint64
 vmfault(pagetable_t pagetable, uint64 va, int read) {
-	uint64 mem, pa;
+	uint64 mem;
 	pte_t* pte;
-	uint flags;
 	struct proc* p = myproc();
 
 	if (va >= p->sz)
@@ -458,38 +488,13 @@ vmfault(pagetable_t pagetable, uint64 va, int read) {
 	pte = walk(pagetable, va, 0);
 
 	if (pte && (*pte & PTE_V)) {
-		flags = PTE_FLAGS(*pte);
-
-		if ((flags & PTE_COW) == 0)
-			return 0;
-
 		if (read)
 			return 0;
 
-		if (!(flags & PTE_COW))
+		if ((*pte & PTE_COW) == 0)
 			return 0;
 
-		pa = PTE2PA(*pte);
-
-		// COW
-		mem = (uint64)kalloc();
-		if (mem == 0)
-			return 0;
-
-		memmove((void*)mem, (void*)pa, PGSIZE);
-
-		uvmunmap(pagetable, va, 1, 0);
-
-		flags = (flags | PTE_W) & ~PTE_COW;
-
-		if (mappages(pagetable, va, PGSIZE, mem, flags) != 0) {
-			kfree((void*)mem);
-			return 0;
-		}
-
-		kfree((void*)pa);
-
-		return mem;
+		return cowbreak(pagetable, va);
 	}
 
 	mem = (uint64)kalloc();
