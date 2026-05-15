@@ -12,7 +12,7 @@ Progress tracker for my MIT 6.S081 / 6.1810 Operating System Engineering xv6 lab
 | [`syscall`](../../tree/syscall) | Done | 2026-05-06 | System calls | Added syscall plumbing across user stubs, syscall numbers, dispatch, and kernel handlers; explored syscall tracing/interposition and process-level kernel state. |
 | [`pgtbl`](../../tree/pgtbl) | Done | 2026-05-08 | Page tables | Implemented `USYSCALL`, `vmprint`, and superpage support across page-table and allocator code. |
 | [`traps`](../../tree/traps) | Done | 2026-05-13 | Trap handling | Implemented backtrace support and user-level alarm handling with `sigalarm` / `sigreturn` across trapframe and timer-interrupt paths. |
-| `cow` | Next | Not started | Copy-on-write fork | Replace eager `fork` memory copying with COW mappings, write-fault handling, and physical-page reference counting. |
+| [`cow`](../../tree/cow) | Done | 2026-05-15 | Copy-on-write fork | Replaced eager `fork` memory copying with shared COW mappings, write-fault page breaks, `copyout` COW handling, and physical-page reference counting. |
 | `net` | Planned | Not started | Networking | Complete E1000 receive-path support and UDP delivery through `ip_rx`, `bind`, and `recv`. |
 | `lock` | Planned | Not started | Kernel concurrency | Reduce lock contention in the memory allocator and block cache; add/readapt locking strategies for multicore execution. |
 | `fs` | Planned | Not started | File system | Add large-file support and symbolic links in the xv6 file system. |
@@ -20,6 +20,7 @@ Progress tracker for my MIT 6.S081 / 6.1810 Operating System Engineering xv6 lab
 
 ## Progress Log
 
+- 2026-05-15: Finished `cow`, including COW fork mappings, write-fault handling, `copyout` support, and physical-page reference counts.
 - 2026-05-13: Finished `traps`, including backtrace and alarm handling.
 - 2026-05-08: Finished `pgtbl`, including `USYSCALL`, `vmprint`, and superpages.
 - 2026-05-06: Finished `syscall`, including syscall plumbing and tracing-related work.
@@ -28,7 +29,7 @@ Progress tracker for my MIT 6.S081 / 6.1810 Operating System Engineering xv6 lab
 ## Technical Themes
 
 - Kernel/user boundary: syscall declarations, user stubs, dispatch tables, and kernel handlers.
-- Virtual memory: page-table traversal, PTE flags, user-visible shared pages, superpages, and fault-driven allocation.
+- Virtual memory: page-table traversal, PTE flags, user-visible shared pages, superpages, copy-on-write fork, and fault-driven allocation.
 - Process state: per-process metadata, trapframes, and address-space bookkeeping.
 - File and device interfaces: xv6 user programs, directory traversal, file-backed memory, and network packet delivery.
 - Concurrency: allocator and cache locking under multicore stress tests.
@@ -38,7 +39,7 @@ Progress tracker for my MIT 6.S081 / 6.1810 Operating System Engineering xv6 lab
 ```sh
 git clone https://github.com/aeilot/MIT6.S081-2025fall.git
 cd MIT6.S081-2025fall
-git checkout traps
+git checkout cow
 make qemu
 ```
 
